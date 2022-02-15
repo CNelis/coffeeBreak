@@ -1,7 +1,5 @@
-import itertools
-import random
-from datetime import datetime, timedelta
 
+from datetime import datetime, timedelta
 import gspread
 import plotly.graph_objects as go
 import numpy

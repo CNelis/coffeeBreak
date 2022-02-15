@@ -1,14 +1,4 @@
-import itertools
-import random
-from datetime import datetime, timedelta
-
 import gspread
-import plotly.graph_objects as go
-import numpy
-import streamlit as st
-from PIL import Image
-from random import randint
-
 import streamlit as st
 import streamlit_authenticator as stauth
 
