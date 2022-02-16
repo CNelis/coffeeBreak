@@ -6,43 +6,56 @@ from gsheetsdb import connect
 import gspread
 import datetime
 
+import stringStore
+
 
 def show_opt_page():
-    image = Image.open('banner/CGI_LinkedIn_banner_modern_office.jpg')
+    # load image and display as header
+    image = Image.open(stringStore.banner)
     st.image(image, use_column_width=True)
-
-    st.header('Opt In/Out of Coffee Chats')
+    st.header(stringStore.optHeader)
 
     optOptions()
 
 
 def optOptions():
-    gc = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
 
-    sh = gc.open_by_url(st.secrets["private_gsheets_url"])
-
+    # Get array of users and opt in/out info
+    gc = gspread.service_account_from_dict(st.secrets[stringStore.googleServiceAccount])
+    sh = gc.open_by_url(st.secrets[stringStore.googleSheetsURL])
     nameList = sh.sheet1.col_values(1)
-
     optArray = sh.sheet1.col_values(2)
 
-    inOut = ['Im In!', 'Im Out!']
+    # Radio button options
+    inOut = [stringStore.optImIn, stringStore.optImOut]
 
-    option = st.selectbox('Select your name', nameList)
+    # Select dropdown, populated with usernames
+    option = st.selectbox(stringStore.optSelectName, nameList)
 
+    # Stores selected user index
     namePosition = nameList.index(option)
 
+    # Only true on a Monday
     if datetime.datetime.today().weekday() == 0:
+
+        # true if selected user has opted in
         if optArray[namePosition] == '1':
-            select = st.radio('Are you free for a chat?', inOut, 0)
-            if select == 'Im In!':
+
+            # radio button update users preference, default in
+            select = st.radio(stringStore.optFreeForChat, inOut, 0)
+            if select == stringStore.optImIn:
                 sh.sheet1.update_cell(namePosition + 1, 2, '1')
             else:
                 sh.sheet1.update_cell(namePosition + 1, 2, '0')
+
+        # true if selected user has opted out
         else:
-            select = st.radio('Select one ' + option, inOut, 1)
-            if select == 'Im In!':
+
+            # radio button update users preference, default out
+            select = st.radio(stringStore.optSelectOne + option, inOut, 1)
+            if select == stringStore.optImIn:
                 sh.sheet1.update_cell(namePosition + 1, 2, '1')
             else:
                 sh.sheet1.update_cell(namePosition + 1, 2, '0')
     else:
-        st.warning("Opt in and opt out available on Mondays")
+        st.warning(stringStore.optAvailabilityMessage)
