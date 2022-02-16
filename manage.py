@@ -1,43 +1,64 @@
 import gspread
 import streamlit as st
 import streamlit_authenticator as stauth
+import stringStore
 
 
 def show_admin_page():
-    hashed_passwords = stauth.hasher(st.secrets["passwords"]).generate()
 
+    # Create passwords, load login area
+    hashed_passwords = stauth.hasher(st.secrets["passwords"]).generate()
     authenticator = stauth.authenticate(st.secrets["names"], st.secrets["usernames"], hashed_passwords,
                                         'some_cookie_name', 'some_signature_key', cookie_expiry_days=0)
-
     name, authentication_status = authenticator.login('Login', 'main')
 
+    # User login successful
     if authentication_status:
-        gc = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
 
-        sh = gc.open_by_url(st.secrets["private_gsheets_url"])
-
+        # Get list of user from Google sheets
+        gc = gspread.service_account_from_dict(st.secrets[stringStore.googleServiceAccount])
+        sh = gc.open_by_url(st.secrets[stringStore.googleSheetsURL])
         nameList = sh.sheet1.col_values(1)
 
-        addDel = ['Add Users', 'Delete Users']
+        # Header and subheader
+        st.title(stringStore.adminManageUsers)
+        st.subheader(stringStore.adminWhichTask)
 
-        st.title('Manage users')
-        st.subheader('Which task would you like to perform?')
+        # radio button options
+        addDel = [stringStore.adminAddUsers, stringStore.adminDeleteUsers]
         select = st.radio('', addDel, 0)
-        if select == 'Add Users':
-            st.subheader('Input new user name below')
-            newUser = st.text_input('')
-            if st.button('Add user'):
-                sh.sheet1.append_row([newUser, 1])
-                st.info('User added')
-        else:
-            st.subheader('Select user to be deleted')
-            option = st.selectbox('', nameList)
-            namePosition = nameList.index(option)
-            if st.button('Delete user'):
-                sh.sheet1.delete_row(namePosition + 1)
-                st.info('User deleted')
 
+        # default option - add users
+        if select == stringStore.adminAddUsers:
+
+            # Get user input
+            st.subheader(stringStore.adminInputName)
+            newUser = st.text_input('')
+
+            # add user on button click
+            if st.button(stringStore.adminAddUser):
+                sh.sheet1.append_row([newUser, 1])
+                st.info(stringStore.adminUserAdded)
+
+        # other option - delete users
+        else:
+
+            # Select user to be deleted
+            st.subheader(stringStore.adminDeleteSelect)
+            option = st.selectbox('', nameList)
+
+            # Get username position in array, convert to row number
+            namePosition = nameList.index(option) + 1
+
+            # Delete user onclick
+            if st.button(stringStore.adminDeleteUser):
+                sh.sheet1.delete_row(namePosition)
+                st.info(stringStore.adminUserDeleted)
+
+    # User auth fails
     if authentication_status == False:
-        st.error('Username/password is incorrect')
+        st.error(stringStore.adminIncorrectPassOrUser)
+
+    # User has not attempted login
     if authentication_status == None:
-        st.warning('Please enter your username and password')
+        st.warning(stringStore.adminEnterCredentials)

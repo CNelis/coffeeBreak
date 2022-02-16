@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 import gspread
 import plotly.graph_objects as go
@@ -6,10 +5,10 @@ import numpy
 import streamlit as st
 from PIL import Image
 from random import randint
+import stringStore
 
 
 def show_match_page():
-
     def oddEven(listA, listB):
         if len(listA) > len(listB):
             double = listA[-1] + ' + ' + (listA[0])
@@ -22,17 +21,17 @@ def show_match_page():
 
         return listA, listB
 
-    primaryColor = "#e31937"
-    secondaryBackgroundColor = "#e1e1e1"
+    primaryColor = stringStore.primaryColor
+    secondaryBackgroundColor = stringStore.secondaryColor
 
-    image = Image.open('banner/CGI_LinkedIn_banner_modern_office.jpg')
+    image = Image.open(stringStore.banner)
     st.image(image, use_column_width=True)
 
-    st.header('This Weeks Coffee Chat Matches Below')
+    st.header(stringStore.matchHeader)
 
-    gc = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
+    gc = gspread.service_account_from_dict(st.secrets[stringStore.googleServiceAccount])
 
-    sh = gc.open_by_url(st.secrets["private_gsheets_url"])
+    sh = gc.open_by_url(st.secrets[stringStore.googleSheetsURL])
 
     nameList = sh.sheet1.col_values(1)
 
@@ -61,8 +60,10 @@ def show_match_page():
     week = int(datetime.date(datetime.today()).strftime("%V"))
     modTablePicker = week % listLength
     a, b = oddEven(organiserAttendeeGroups[modTablePicker][0], organiserAttendeeGroups[modTablePicker][1])
-    fig = go.Figure(data=[go.Table(header=dict(values=['Meeting Organiser', 'Attendee'], fill_color=primaryColor, font_color='#FFFFFF'),
-                                   cells=dict(values=[a, b], fill_color=secondaryBackgroundColor))
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=[stringStore.matchFigureOrganiser, stringStore.matchFigureAttendee], fill_color=primaryColor,
+                    font_color=stringStore.colorBlack),
+        cells=dict(values=[a, b], fill_color=secondaryBackgroundColor))
                           ])
     fig.update_layout()
     st.plotly_chart(fig)
