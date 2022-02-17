@@ -4,11 +4,10 @@ from manage import show_admin_page
 from matchPage import show_match_page
 from optPage import show_opt_page
 
-
 # Create SideBar
-page = st.sidebar.selectbox(stringStore.sideBarSelect, (stringStore.sideBarCoffeePage,
-                                                        stringStore.sideBarOptPage,
-                                                        stringStore.sideBarAdminPage))
+page = st.sidebar.selectbox(label=stringStore.sideBarSelect, options=(stringStore.sideBarCoffeePage,
+                                                                      stringStore.sideBarOptPage,
+                                                                      stringStore.sideBarAdminPage))
 
 # Switch between pages using the sidebar
 if page == stringStore.sideBarCoffeePage:
