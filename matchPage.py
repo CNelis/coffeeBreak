@@ -63,12 +63,14 @@ def show_match_page():
         else:
             organiserAttendeeGroups.append([b.copy(), a])
 
+    # Get current week integer e.g 1-52
     week = int(datetime.date(datetime.today()).strftime("%V"))
 
     modTablePicker = week % listLength
 
     a, b = oddEven(organiserAttendeeGroups[modTablePicker][0], organiserAttendeeGroups[modTablePicker][1])
 
+    # Create organiser/attendee table
     fig = go.Figure(data=[go.Table(
         header=dict(values=[stringStore.matchFigureOrganiser, stringStore.matchFigureAttendee], fill_color=primaryColor,
                     font_color=stringStore.colorBlack),
