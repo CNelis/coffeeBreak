@@ -56,9 +56,13 @@ def show_match_page():
 
     organiserAttendeeGroups = []
 
+    # for each item in the longest half
     for x in range(0, listLength):
+        # each time take last element in list b and move to the top of the list b
         b.append(b.pop(b.index(b[0])))
+        # alternate attendee and organiser group each week
         if (x % 2) == 0:
+            # new list a stays the same, updated b moves
             organiserAttendeeGroups.append([a, b.copy()])
         else:
             organiserAttendeeGroups.append([b.copy(), a])
